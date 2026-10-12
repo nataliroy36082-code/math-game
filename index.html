@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Космічна місія: П'ятизначні числа</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        h1 {
+            text-align: center;
+            color: #00d2ff;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        p.subtitle {
+            text-align: center;
+            color: #a7ffeb;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        .btn {
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #00d2ff;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            font-size: 18px;
+            margin-top: 10px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .question-box {
+            font-size: 18px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 12px;
+            border-radius: 10px;
+            color: white;
+            text-align: left;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+        .option-btn:hover {
+            background: rgba(0, 210, 255, 0.3);
+            border-color: #00d2ff;
+        }
+        .hidden { display: none; }
+        .result-score {
+            font-size: 32px;
+            color: #ffd700;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .congrats {
+            font-size: 20px;
+            color: #a7ffeb;
+            text-align: center;
+            margin: 15px 0;
+        }
+        .already-passed {
+            background: rgba(255, 87, 34, 0.2);
+            border: 1px solid #ff5722;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <!-- Екран привітання -->
+    <div id="screen-start">
+        <h1>🚀 Космічна місія: Загадки п'ятизначних чисел</h1>
+        <p class="subtitle">Досліди п'ятизначні числа та отримай свій космічний бал!</p>
+        <p style="text-align: center;">Увага: місію можна пройти лише один раз з цього пристрою!</p>
+        <input type="text" id="captain-name" placeholder="Введи своє ім'я та прізвище">
+        <button class="btn" onclick="startMission()">Почати політ!</button>
+    </div>
+
+    <!-- Екран для тих, хто вже пройшов -->
+    <div id="screen-already" class="hidden">
+        <h1>🛑 Місію вже виконано!</h1>
+        <div class="already-passed">
+            <p id="already-text" style="font-size: 18px; margin: 0;"></p>
+        </div>
+        <p style="text-align: center; color: #a7ffeb; margin-top: 20px;">
+            Дякуємо за участь у космічній місії!
+        </p>
+    </div>
+
+    <!-- Екран запитань -->
+    <div id="screen-game" class="hidden">
+        <div style="display: flex; justify-content: space-between; color: #a7ffeb; font-size: 14px; margin-bottom: 15px;">
+            <span id="q-counter">Запитання 1 з 6</span>
+            <span id="player-display">Капітан: </span>
+        </div>
+        <div class="question-box" id="question-text">Текст запитання</div>
+        <div id="input-container" class="hidden" style="margin-bottom: 15px;">
+            <input type="text" id="text-answer" placeholder="Введи число цифрами...">
+            <button class="btn" onclick="checkTextAnswer()">Підтвердити</button>
+        </div>
+        <div class="options" id="options-container">
+            <!-- Варіанти відповідей -->
+        </div>
+    </div>
+
+    <!-- Екран фінальних результатів та привітання -->
+    <div id="screen-result" class="hidden">
+        <h1>🎉 Вітаємо з успішним фінішем!</h1>
+        <p class="subtitle" id="result-captain-name"></p>
+        <div class="congrats" id="congrats-title">Ти справжній Космічний Дослідник! 🌟</div>
+        <div class="result-score" id="final-score">Твій результат: 0 / 6</div>
+        <p id="result-message" style="text-align: center; font-size: 18px; margin-bottom: 20px; line-height: 1.4;"></p>
+        <div style="background: rgba(0,210,255,0.1); border: 1px dashed #00d2ff; padding: 15px; border-radius: 10px; text-align: center;">
+            <p style="margin: 0; font-size: 15px; color: #a7ffeb;">
+                📸 Покажи цей екран вчителю або зроби скріншот!
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            type: "input",
+            question: "Запиши цифрами число: <b>тридцять дві тисячі двадцять п'ять</b>.",
+            answer: "32025"
+        },
+        {
+            type: "choice",
+            question: "Яке число записано так: <b>сорок тисяч сімсот вісім</b>?",
+            options: ["40 780", "40 708", "47 008", "400 708"],
+            correct: 1
+        },
+        {
+            type: "choice",
+            question: "Скільки <b>десятків тисяч</b> у числі <b>74 312</b>?",
+            options: ["4", "74", "7", "3"],
+            correct: 2
+        },
+        {
+            type: "choice",
+            question: "Визнач, скільки всього <b>сотень</b> у числі <b>56 218</b>?",
+            options: ["2", "21", "562", "6"],
+            correct: 2
+        },
+        {
+            type: "input",
+            question: "Запиши цифрами число: <b>дев'яносто тисяч дев'яносто</b>.",
+            answer: "90090"
+        },
+        {
+            type: "choice",
+            question: "Яке число слідує безпосередньо за числом <b>99 999</b>?",
+            options: ["10 000", "100 000", "99 990", "1 000 000"],
+            correct: 1
+        }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let captainName = "";
+
+    // Перевірка при завантаженні: чи проходила дитина тест раніше
+    window.onload = function() {
+        const savedScore = localStorage.getItem("cosmoGameScore");
+        const savedName = localStorage.getItem("cosmoGameName");
+        
+        if (savedScore !== null && savedName !== null) {
+            document.getElementById("screen-start").classList.add("hidden");
+            document.getElementById("screen-already").classList.remove("hidden");
+            document.getElementById("already-text").innerHTML = 
+                `Капітан <b>${savedName}</b> вже пройшов(ла) цю місію!<br><br>Ваш результат: <b>${savedScore} з 6 балів</b>.`;
+        }
+    };
+
+    function startMission() {
+        const nameInput = document.getElementById("captain-name").value.trim();
+        if (!nameInput) {
+            alert("Будь ласка, введи своє ім'я!");
+            return;
+        }
+        captainName = nameInput;
+        document.getElementById("player-display").innerText = "Капітан: " + captainName;
+        document.getElementById("screen-start").classList.add("hidden");
+        document.getElementById("screen-game").classList.remove("hidden");
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        if (currentQuestion >= questions.length) {
+            showResult();
+            return;
+        }
+
+        document.getElementById("q-counter").innerText = `Запитання ${currentQuestion + 1} з ${questions.length}`;
+        const q = questions[currentQuestion];
+        document.getElementById("question-text").innerHTML = q.question;
+
+        const inputContainer = document.getElementById("input-container");
+        const optionsContainer = document.getElementById("options-container");
+        
+        optionsContainer.innerHTML = "";
+
+        if (q.type === "input") {
+            inputContainer.classList.remove("hidden");
+            optionsContainer.classList.add("hidden");
+            document.getElementById("text-answer").value = "";
+        } else {
+            inputContainer.classList.add("hidden");
+            optionsContainer.classList.remove("hidden");
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement("button");
+                btn.className = "option-btn";
+                btn.innerText = opt;
+                btn.onclick = () => checkChoiceAnswer(index);
+                optionsContainer.appendChild(btn);
+            });
+        }
+    }
+
+    function checkTextAnswer() {
+        const userAns = document.getElementById("text-answer").value.replace(/\s+/g, '').trim();
+        if (!userAns) {
+            alert("Введи число!");
+            return;
+        }
+        if (userAns === questions[currentQuestion].answer) {
+            score++;
+        }
+        currentQuestion++;
+        loadQuestion();
+    }
+
+    function checkChoiceAnswer(selectedIndex) {
+        if (selectedIndex === questions[currentQuestion].correct) {
+            score++;
+        }
+        currentQuestion++;
+        loadQuestion();
+    }
+
+    function showResult() {
+        // Зберігаємо стан у пам'ять гаджета/браузера
+        localStorage.setItem("cosmoGameScore", score);
+        localStorage.setItem("cosmoGameName", captainName);
+
+        document.getElementById("screen-game").classList.add("hidden");
+        document.getElementById("screen-result").classList.remove("hidden");
+        document.getElementById("result-captain-name").innerText = `Капітан: ${captainName}`;
+        document.getElementById("final-score").innerText = `Твій результат: ${score} / 6`;
+
+        let msg = "";
+        if (score === 6) {
+            msg = "🏆 **Неймовірно!** Ти бездоганно знаєш п'ятизначні числа і отримуєш звання **Адмірала Галактики**!";
+        } else if (score >= 4) {
+            msg = "👏 **Чудова робота!** Ти гарно орієнтуєшся в розрядах та числах. Так тримати!";
+        } else {
+            msg = "🚀 **Молодець!** Місію завершено. Потренуйся ще трохи з розрядами чисел, і наступного разу буде 6/6!";
+        }
+        document.getElementById("result-message").innerHTML = msg;
+    }
+</script>
+
+</body>
+</html>
